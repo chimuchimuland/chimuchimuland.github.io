@@ -1,0 +1,78 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>護送計算</title>
+<style>
+  body { font-family: 'Arial', sans-serif; margin: 20px;
+         background-color: #ffe6f2;
+         background-image: radial-gradient(circle at 20px 20px, #f8bbd0 20%, transparent 20%),
+                           radial-gradient(circle at 60px 60px, #e1bee7 20%, transparent 20%);
+         background-size: 80px 80px;
+         color: #4a148c; text-align: center; }
+  h2 { color: #880e4f; margin-bottom: 5px; font-size: 28px;}
+  .container { display: flex; justify-content: center; align-items: flex-start; gap: 40px; flex-wrap: wrap; }
+  .form-box { background-color: rgba(255,255,255,0.85); padding: 20px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+  label { display: block; margin: 10px 0; font-weight: bold; color: #6a1b9a;}
+  input { width: 80px; padding: 5px; border-radius: 5px; border: 1px solid #ab47bc;}
+  button { margin-top: 15px; padding: 10px 20px; background-color: #f48fb1; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;}
+  button:hover { background-color: #ce93d8; }
+  .summary { margin-top: 20px; font-weight: bold; font-size: 18px; background-color: rgba(255,255,255,0.8); padding: 10px; border-radius: 10px; text-align: left; color: #4a148c;}
+</style>
+</head>
+<body>
+
+<h2>護送計算</h2>
+<p>（1ミッションにつき急行札最大4枚）</p>
+
+<div class="container">
+  <div class="form-box">
+    <label>無料分: <input type="number" id="free" value="2"></label>
+    <label>銀札枚数: <input type="number" id="silver" value="3"></label>
+    <label>金札枚数: <input type="number" id="gold" value="1"></label>
+    <label>手持ち急行札枚数: <input type="number" id="express" value="12"></label>
+
+    <button onclick="calculate()">計算する</button>
+
+    <div id="results" class="summary"></div>
+  </div>
+</div>
+
+<script>
+const POINTS = { "無料": 2500, "銀札": 5000, "金札": 40000 };
+const MAX_EXPRESS = 4;
+
+function calculate() {
+  const free = parseInt(document.getElementById("free").value) || 0;
+  const silver = parseInt(document.getElementById("silver").value) || 0;
+  const gold = parseInt(document.getElementById("gold").value) || 0;
+  let handheld = parseInt(document.getElementById("express").value) || 0;
+
+  let missions = [];
+  for (let i = 0; i < gold; i++) missions.push("金札");
+  for (let i = 0; i < silver; i++) missions.push("銀札");
+  for (let i = 0; i < free; i++) missions.push("無料");
+
+  let totalPoints = 0;
+  let immediatePoints = 0;
+
+  missions.forEach((kind) => {
+    const alloc = Math.min(MAX_EXPRESS, handheld);
+    handheld -= alloc;
+    const remaining = MAX_EXPRESS - alloc;
+    const pts = POINTS[kind];
+    totalPoints += pts;
+    if (remaining === 0) immediatePoints += pts;
+  });
+
+  document.getElementById("results").innerHTML = 
+    `合計ミッション数: ${missions.length}<br>
+     合計得点（全完了時）: ${totalPoints.toLocaleString()} 点<br>
+     手持ち急行札: ${parseInt(document.getElementById("express").value)} 枚<br>
+     即時獲得できる得点: ${immediatePoints.toLocaleString()} 点`;
+}
+</script>
+
+</body>
+</html>
