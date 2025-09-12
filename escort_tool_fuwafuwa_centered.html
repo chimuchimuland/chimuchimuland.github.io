@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏇護送計算🏇</title>
+<style>
+  body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #ffe6f9, #e0bbf7, #c8e4f7);
+    position: relative;
+    overflow-x: hidden;
+    text-align: center;
+    color: #6a1b9a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  h2 {
+    color: #ad1457;
+    margin-bottom: 10px;
+    font-size: 28px;
+    text-shadow: 2px 2px #f8bbd0;
+  }
+  p { margin: 5px 0 20px; }
+  .form-box {
+    background-color: rgba(255,255,255,0.9);
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;  /* 中央配置で左右均等に */
+    box-sizing: border-box;
+  }
+  label {
+    display: block;
+    margin: 12px 0;
+    font-weight: bold;
+    color: #8e24aa;
+    text-align: left;
+  }
+  input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ba68c8;
+    margin-top: 4px;
+    box-sizing: border-box;
+  }
+  button {
+    margin-top: 15px;
+    padding: 12px;
+    background-color: #f48fb1;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+  }
+  button:hover {
+    background-color: #ce93d8;
+  }
+  .summary {
+    margin-top: 20px;
+    font-weight: bold;
+    font-size: 18px;
+    background-color: rgba(255,255,255,0.9);
+    padding: 12px;
+    border-radius: 12px;
+    text-align: left;
+    color: #6a1b9a;
+  }
+
+  /* ふんわり漂う♡ */
+  body::before {
+    content: "❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    font-size: 40px;
+    line-height: 2;
+    color: rgba(255,182,193,0.3);
+    z-index: 0;
+    overflow: hidden;
+    white-space: pre-wrap;
+    animation: float 20s linear infinite;
+  }
+  @keyframes float {
+    from { transform: translateY(0); }
+    to { transform: translateY(-2000px); }
+  }
+  .form-box, h2, p { position: relative; z-index: 1; }
+</style>
+</head>
+<body>
+
+<h2>🏇護送計算🏇</h2>
+<p>（1ミッションにつき急行札最大4枚）</p>
+
+<div class="form-box">
+  <label>無料分:
+    <input type="number" id="free" value="2">
+  </label>
+  <label>銀札枚数:
+    <input type="number" id="silver" value="3">
+  </label>
+  <label>金札枚数:
+    <input type="number" id="gold" value="1">
+  </label>
+  <label>手持ち急行札枚数:
+    <input type="number" id="express" value="12">
+  </label>
+
+  <button onclick="calculate()">計算する</button>
+
+  <div id="results" class="summary"></div>
+</div>
+
+<script>
+const POINTS = { "無料": 2500, "銀札": 5000, "金札": 40000 };
+const MAX_EXPRESS = 4;
+
+function calculate() {
+  const free = parseInt(document.getElementById("free").value) || 0;
+  const silver = parseInt(document.getElementById("silver").value) || 0;
+  const gold = parseInt(document.getElementById("gold").value) || 0;
+  let handheld = parseInt(document.getElementById("express").value) || 0;
+
+  let missions = [];
+  for (let i = 0; i < gold; i++) missions.push("金札");
+  for (let i = 0; i < silver; i++) missions.push("銀札");
+  for (let i = 0; i < free; i++) missions.push("無料");
+
+  let totalPoints = 0;
+  let immediatePoints = 0;
+
+  const requiredTickets = missions.length * MAX_EXPRESS;
+  const shortage = Math.max(0, requiredTickets - (parseInt(document.getElementById("express").value) || 0));
+
+  missions.forEach((kind) => {
+    const alloc = Math.min(MAX_EXPRESS, handheld);
+    handheld -= alloc;
+    const remaining = MAX_EXPRESS - alloc;
+    const pts = POINTS[kind];
+    totalPoints += pts;
+    if (remaining === 0) immediatePoints += pts;
+  });
+
+  document.getElementById("results").innerHTML =
+     `合計得点（全完了時）: ${totalPoints.toLocaleString()} 点<br>
+      手持ち急行札: ${parseInt(document.getElementById("express").value)} 枚<br>
+      即時獲得できる得点: ${immediatePoints.toLocaleString()} 点<br>
+      不足急行札: ${shortage} 枚`;
+}
+</script>
+
+</body>
+</html>
