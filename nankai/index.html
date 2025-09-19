@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>南海航路 オール計算ツール（提灯丸）</title>
+<style>
+body{
+  margin:0;
+  font-family: "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  background-color: #b3ecff;
+  background-image: url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='60' viewBox='0 0 120 60'><path fill='white' fill-opacity='0.5' d='M0 30 Q 30 0, 60 30 T 120 30 V60 H0 Z'/></svg>");
+  background-repeat: repeat-x;
+  background-size: 120px 60px;
+  color:#00334d;
+}
+header{
+  background:#0099cc;
+  color:#fff;
+  padding:12px;
+  text-align:center;
+  font-size:17px;
+  font-weight:600;
+}
+.wrap{
+  max-width:480px;
+  margin:12px auto;
+  padding:10px;
+}
+.card{
+  background: rgba(255,255,255,0.95);
+  border-radius:10px;
+  padding:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.12);
+  margin-bottom:12px;
+}
+.sectionTitle{
+  font-weight:700;
+  color:#0099cc;
+  margin-bottom:6px;
+  font-size:15px;
+}
+label{font-size:13px; display:block; margin-top:6px; font-weight:600;}
+.bigInput{
+  width:100%;
+  padding:5px;
+  margin-top:4px;
+  border-radius:6px;
+  border:1px solid #8fd2ee;
+  font-size:14px;
+  box-sizing:border-box;
+}
+.timeRow{
+  display:flex;
+  gap:4px;
+  align-items:center;
+}
+.timeRow input[type="number"]{
+  width:28%;
+  padding:5px;
+  border-radius:6px;
+  border:1px solid #8fd2ee;
+  font-size:14px;
+  text-align:center;
+}
+.colon{
+  font-size:15px;
+  color:#00334d;
+  width:5%;
+  text-align:center;
+}
+.oarRow{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap:8px;
+  margin-top:6px;
+}
+.oarBox{
+  display:flex;
+  flex-direction:column;
+  font-size:12px;
+}
+.oarBox input{ 
+  width:100%; 
+  padding:4px; 
+  border-radius:6px; 
+  border:1px solid #8fd2ee; 
+  font-size:13px; 
+  margin-top:2px;
+  box-sizing:border-box;
+}
+button{
+  width:100%;
+  margin-top:10px;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+  background:#0099cc;
+  color:#fff;
+  font-size:15px;
+  font-weight:700;
+}
+.result{
+  margin-top:10px;
+  padding:10px;
+  border-radius:8px;
+  background:linear-gradient(180deg,#eafcff,#d6f9ff);
+  border:1px solid #9fdcf0;
+  color:#00334d;
+  font-size:14px;
+}
+.log{
+  margin-top:6px;
+  padding:6px;
+  border-radius:6px;
+  background:#fff;
+  border:1px solid #cfeefb;
+  font-size:12px;
+}
+</style>
+</head>
+<body>
+<header>⚓ 南海航路 オール計算ツール — 提灯丸 🚢</header>
+
+<div class="wrap">
+  <div class="card">
+    <div class="sectionTitle">🛶 提灯丸（自分）</div>
+    <label>基礎速度 (m/s)</label>
+    <input id="myBase" class="bigInput" type="number" min="0" value="45">
+    <label>残り到着時間 (HH : MM : SS)</label>
+    <div class="timeRow">
+      <input id="myH" type="number" min="0" value="00">
+      <div class="colon">:</div>
+      <input id="myM" type="number" min="0" max="59" value="30">
+      <div class="colon">:</div>
+      <input id="myS" type="number" min="0" max="59" value="00">
+    </div>
+    <label>オール（全同時使用）</label>
+    <div class="oarRow">
+      <div class="oarBox"><div>茶 (+3,30分)</div><input id="myBrown" type="number" min="0" value="0"></div>
+      <div class="oarBox"><div>緑 (+4,30分)</div><input id="myGreen" type="number" min="0" value="0"></div>
+      <div class="oarBox"><div>青 (+6,30分)</div><input id="myBlue" type="number" min="0" value="0"></div>
+      <div class="oarBox"><div>赤 (+8,30分)</div><input id="myRed" type="number" min="0" value="0"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sectionTitle">🏴‍☠️ 敵船</div>
+    <label>基礎速度 (m/s)</label>
+    <input id="eBase" class="bigInput" type="number" min="0" value="40">
+    <label>現在の速度 (m/s)</label>
+    <input id="eCurrent" class="bigInput" type="number" min="0" value="60">
+    <label>その速度の継続時間 (HH : MM : SS)</label>
+    <div class="timeRow">
+      <input id="eH" type="number" min="0" value="00">
+      <div class="colon">:</div>
+      <input id="eM" type="number" min="0" max="59" value="20">
+      <div class="colon">:</div>
+      <input id="eS" type="number" min="0" max="59" value="00">
+    </div>
+    <label>残り到着時間 (HH : MM : SS)</label>
+    <div class="timeRow">
+      <input id="eRemH" type="number" min="0" value="00">
+      <div class="colon">:</div>
+      <input id="eRemM" type="number" min="0" max="59" value="30">
+      <div class="colon">:</div>
+      <input id="eRemS" type="number" min="0" max="59" value="00">
+    </div>
+  </div>
+
+  <button id="calcBtn">計算する</button>
+  <div id="out" class="result card" style="display:none;"></div>
+</div>
+
+<script>
+const OARS = {
+  brown: {boost:3, dur:1800},
+  green: {boost:4, dur:1800},
+  blue: {boost:6, dur:1800},
+  red: {boost:8, dur:1800}
+};
+function toSec(h,m,s){return (Number(h)||0)*3600 + (Number(m)||0)*60 + (Number(s)||0);}
+function toHMS(sec){
+  sec=Math.round(sec); if(sec<0)sec=0;
+  const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;
+  return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+document.getElementById("calcBtn").addEventListener("click",()=>{
+  const myBaseVal = Number(document.getElementById("myBase").value)||0;
+  const myRem = toSec(document.getElementById("myH").value, document.getElementById("myM").value, document.getElementById("myS").value);
+  const myCounts = {
+    brown: +document.getElementById("myBrown").value||0,
+    green: +document.getElementById("myGreen").value||0,
+    blue: +document.getElementById("myBlue").value||0,
+    red: +document.getElementById("myRed").value||0
+  };
+  const myBoost = myCounts.brown*OARS.brown.boost + myCounts.green*OARS.green.boost + myCounts.blue*OARS.blue.boost + myCounts.red*OARS.red.boost;
+  const myBoostSpeed = myBaseVal + myBoost;
+  const myBoostDist = myBoostSpeed*1800;
+  const myDistance = myBaseVal*myRem;
+  let myArrSec,myLog=[];
+  if(myDistance<=myBoostDist){
+    myArrSec=myDistance/myBoostSpeed;
+    myLog.push(`速度${myBoostSpeed}m/sで進み、${toHMS(myArrSec)}で到着。`);
+  } else {
+    const rem=myDistance-myBoostDist;
+    const after=rem/myBaseVal;
+    myArrSec=1800+after;
+    myLog.push(`30分間速度${myBoostSpeed}m/sで${myBoostDist}m進む。`);
+    myLog.push(`残り${rem}mを基礎${myBaseVal}m/sで${toHMS(after)}かけ進む。`);
+  }
+  let extraBrown=0;
+  if(myDistance>myBoostDist){extraBrown=Math.ceil((myDistance-myBoostDist)/(3*1800));}
+
+  const eBaseVal=+document.getElementById("eBase").value||0;
+  const eCurrentVal=+document.getElementById("eCurrent").value||0;
+  const eBoostSec = toSec(document.getElementById("eH").value, document.getElementById("eM").value, document.getElementById("eS").value);
+  const eRemSec = toSec(document.getElementById("eRemH").value, document.getElementById("eRemM").value, document.getElementById("eRemS").value);
+  const eDistance = eBaseVal*eRemSec;
+  let eArrSec,eLog=[];
+  const eBoostDist = eCurrentVal*eBoostSec;
+  if(eDistance<=eBoostDist){
+    eArrSec = eDistance/eCurrentVal;
+    eLog.push(`速度${eCurrentVal}m/sで進み${toHMS(eArrSec)}で到着。`);
+  } else {
+    const rem = eDistance - eBoostDist;
+    const after = rem/eBaseVal;
+    eArrSec = eBoostSec + after;
+    eLog.push(`速度${eCurrentVal}m/sで${toHMS(eBoostSec)}進む(${eBoostDist}m)。`);
+    eLog.push(`残り${rem}mを基礎${eBaseVal}m/sで${toHMS(after)}かけ進む。`);
+  }
+
+  const diff = eArrSec-myArrSec;
+  let compare="";
+  if(Math.abs(diff)<0.5){compare="ほぼ同着";}
+  else if(diff>0){compare=`提灯丸🚢が${toHMS(diff)}早い`; }
+  else{compare=`敵船が${toHMS(-diff)}早い`; }
+
+  const out = document.getElementById("out");
+  out.style.display="block";
+  out.innerHTML=
+  `
+  <div><strong>提灯丸🚢:</strong> ${toHMS(myArrSec)}</div>
+  ${extraBrown>0?`<div>茶オールあと${extraBrown}本で到着可能</div>`:""}
+  <div><strong>敵船:</strong> ${toHMS(eArrSec)}</div>
+  <div><strong>比較:</strong> ${compare}</div>
+  <div class="log">提灯丸🚢ログ:<br>${myLog.join("<br>")}</div>
+  <div class="log">敵船ログ:<br>${eLog.join("<br>")}</div>
+  `;
+});
+</script>
+</body>
+</html>
