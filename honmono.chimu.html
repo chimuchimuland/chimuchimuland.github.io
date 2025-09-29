@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>家来収入計算ツール</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #0b1c3d, #000);
+      color: #fff;
+      text-align: center;
+      overflow-x: hidden;
+    }
+    h1 {
+      margin: 20px 0;
+      font-size: 1.5em;
+    }
+    .stars {
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+      background: transparent;
+      overflow: hidden;
+    }
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 2s infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
+    }
+    .form-container {
+      display: grid;
+      gap: 10px;
+      padding: 20px;
+      max-width: 350px;
+      margin: 0 auto;
+    }
+    .form-container label {
+      text-align: left;
+      font-size: 0.9em;
+    }
+    .form-container input {
+      width: 100%;
+      padding: 6px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1em;
+    }
+    .calc-btn {
+      background: gold;
+      color: #333;
+      border: none;
+      border-radius: 15px;
+      padding: 10px 20px;
+      font-size: 1.1em;
+      cursor: pointer;
+      margin-top: 15px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+      transition: all 0.3s ease;
+    }
+    .calc-btn:hover {
+      background: #ffdb4d;
+      box-shadow: 0 0 25px rgba(255, 255, 200, 1);
+    }
+    .result-container {
+      display: none;
+      margin: 30px auto;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle at center, #ffd700, #ffb300);
+      border-radius: 50%;
+      box-shadow: 0 0 25px rgba(255, 255, 200, 0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 1em;
+      font-weight: bold;
+      color: #333;
+      animation: floatUp 1s ease forwards;
+    }
+    @keyframes floatUp {
+      from { opacity: 0; transform: translateY(50px) scale(0.5); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="stars" id="stars"></div>
+  <h1>🌟 家来収入計算ツール 🌟</h1>
+  <div class="form-container">
+    <label>資質: <input type="number" id="shishi" placeholder="例: 350"></label>
+    <label>レベル: <input type="number" id="level" placeholder="例: 500"></label>
+    <label>基礎収入(万): <input type="number" id="baseIncome" step="0.01" placeholder="例: 1720"></label>
+    <label>割合バフ合計(%): <input type="number" id="buff" step="0.1" placeholder="例: 1000"></label>
+    <label>笑門来福アップ率(%): <input type="number" id="smile" step="0.1" placeholder="例: 0.5"></label>
+    <label>元の家来収入(円): <input type="number" id="currentIncome" placeholder="例: 48341188"></label>
+    <button class="calc-btn" onclick="calculate()">★ 計算する ★</button>
+  </div>
+
+  <div id="result" class="result-container"></div>
+
+  <script>
+    function createStars() {
+      const starsContainer = document.getElementById("stars");
+      for (let i = 0; i < 100; i++) {
+        const star = document.createElement("div");
+        star.className = "star";
+        star.style.top = Math.random() * 100 + "%";
+        star.style.left = Math.random() * 100 + "%";
+        star.style.animationDuration = (1 + Math.random() * 2) + "s";
+        starsContainer.appendChild(star);
+      }
+    }
+
+    function calculate() {
+      const shishi = parseFloat(document.getElementById("shishi").value);
+      const level = parseFloat(document.getElementById("level").value);
+      const baseIncome = parseFloat(document.getElementById("baseIncome").value) * 10000;
+      const buff = parseFloat(document.getElementById("buff").value);
+      const smile = parseFloat(document.getElementById("smile").value);
+      const currentIncome = parseFloat(document.getElementById("currentIncome").value);
+
+      if (isNaN(shishi) || isNaN(level) || isNaN(baseIncome) || isNaN(buff) || isNaN(smile) || isNaN(currentIncome)) {
+        alert("全ての項目を入力してください！");
+        return;
+      }
+
+      const constant = baseIncome / shishi;
+      const baseRevenue = shishi * constant * (1 + buff / 100);
+
+      // 資質＋1
+      const revenueShishiUp = (shishi + 1) * constant * (1 + buff / 100);
+      const increaseShishi = Math.floor(revenueShishiUp - baseRevenue);
+
+      // 笑門来福
+      const revenueSmile = shishi * constant * (1 + (buff + smile) / 100);
+      const increaseSmile = Math.ceil(revenueSmile - baseRevenue);
+
+      // 結果の描画
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = `
+        資質＋1増加：${increaseShishi.toLocaleString()}円<br>
+        笑門来福増加：${increaseSmile.toLocaleString()}円<br>
+        最終家来収入（資質＋1）：${(currentIncome + increaseShishi).toLocaleString()}円<br>
+        最終家来収入（笑門来福）：${(currentIncome + increaseSmile).toLocaleString()}円
+      `;
+      resultDiv.style.display = "flex";
+    }
+
+    createStars();
+  </script>
+</body>
+</html>
